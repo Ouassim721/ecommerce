@@ -3,9 +3,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 // Register User
+// Register User
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, isAdmin } = req.body; // Accept `isAdmin` from the request body
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -13,14 +14,20 @@ export const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({ 
+      name, 
+      email, 
+      password: hashedPassword, 
+      isAdmin: isAdmin || false // Set isAdmin to false by default if not provided
+    });
 
     if (user) {
       res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
-        token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" }),
+        isAdmin: user.isAdmin,  // Include `isAdmin` in the response for clarity
+        token: jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: "30d" }),
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -29,6 +36,7 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Login User
 export const loginUser = async (req, res) => {
@@ -49,7 +57,7 @@ export const loginUser = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" }),
+      token: jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: "30d" }),
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });

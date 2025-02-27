@@ -5,7 +5,11 @@ const protect = (req, res, next) => {
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
+
+      console.log(req.headers.authorization); // Log the Authorization header to check if the token is coming through
       token = req.headers.authorization.split(' ')[1];
+      console.log(token);
+      
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded; // Attach user data to request object
       next();

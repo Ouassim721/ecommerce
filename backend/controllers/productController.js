@@ -12,14 +12,22 @@ const getProducts = async (req, res) => {
 
 // Create a new product (Admin only)
 const createProduct = async (req, res) => {
-  const { name, price, category, stock } = req.body;
+  const { name, description, price, category, stock, image, rating } = req.body;
 
   try {
+    // Validate required fields
+    if (!name || !description || !price || !category) {
+      return res.status(400).json({ message: 'Please provide all required fields (name, description, price, category).' });
+    }
+
     const newProduct = new Product({
       name,
+      description,  // Added description field
       price,
       category,
       stock,
+      image,        // Optional: added image field
+      rating,       // Optional: added rating field
     });
 
     const createdProduct = await newProduct.save();
@@ -31,14 +39,17 @@ const createProduct = async (req, res) => {
 
 // Update a product
 const updateProduct = async (req, res) => {
-  const { name, price, category, stock } = req.body;
+  const { name, description, price, category, stock, image, rating } = req.body;
 
   try {
     const updatedProduct = await Product.findByIdAndUpdate(req.params.id, {
       name,
+      description,  // Added description field
       price,
       category,
       stock,
+      image,        // Optional: added image field
+      rating,       // Optional: added rating field
     }, { new: true });
 
     if (!updatedProduct) {
