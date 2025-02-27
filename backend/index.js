@@ -9,12 +9,15 @@ import cartRoutes from "./routes/cartRoutes.js"; // Cart routes
 import paymentRoutes from "./routes/paymentRoutes.js"; // Payment routes
 import reviewRoutes from "./routes/reviewRoutes.js"; // Review routes
 import wishlistRoutes from "./routes/wishlistRoutes.js"; // Wishlist routes
+import cors from 'cors';
+
 
 dotenv.config();
 connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
 
 app.use(express.json());
 
@@ -27,6 +30,12 @@ app.use("/api/carts", cartRoutes); // Cart routes
 app.use("/api/payments", paymentRoutes); // Payment routes
 app.use("/api/reviews", reviewRoutes); // Review routes
 app.use("/api/wishlists", wishlistRoutes); // Wishlist routes
+
+// Allow requests from frontend (running on localhost:3000)
+app.use(cors({
+  origin: 'http://localhost:3000', // You can also use '*' to allow all origins, but it's not recommended for production
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these HTTP methods
+}));
 
 app.get("/", (req, res) => {
   res.send("API is running...");
